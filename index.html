@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Restaurant Stock Entry</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h2, h3 {
+      text-align: center;
+    }
+    .item-row {
+      margin-bottom: 15px;
+    }
+    label {
+      display: inline-block;
+      width: 100px;
+    }
+    input[type="number"] {
+      width: 80px;
+      padding: 5px;
+      margin-right: 10px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+    }
+    #summary {
+      margin-top: 30px;
+      border-top: 1px solid #ccc;
+      padding-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Daily Restaurant Stock Entry</h2>
+  <form id="stockForm"></form>
+
+  <div id="summary"></div>
+
+  <script>
+    const categories = [
+      {
+        name: "Seafood",
+        items: [
+          "swai", "grouper 6oz", "grouper 10 oz", "gator", "scallops",
+          "lobster senstations", "mahi mahi", "salmon", "white shrimp",
+          "crab cakes", "conch fritters", "crab cheese jalapeno bites",
+          "coconut shrimp", "breaded calamari", "smoked fish dip"
+        ]
+      },
+      {
+        name: "Meats",
+        items: [
+          "boneless lamb", "bone-in chicken wings", "boneless chicken wings",
+          "chicken breast", "bacon", "lamb boneless", "jumbo chicken thigh",
+          "jumbo chicken breast", "bison"
+        ]
+      },
+      {
+        name: "Dairy",
+        items: [
+          "cheddar sliced", "american sliced", "swiss sliced", "provolone sliced",
+          "montery jack cheddar shredded", "parmesan shredded", "whipping cream",
+          "heavy whipping cream", "half &half creamer", "butter", "sour cream"
+        ]
+      },
+      {
+        name: "Produce",
+        items: [
+          "lettuce iceberg", "romaine", "tomatoes", "cherries", "red onions",
+          "white onions", "lemons", "limes", "cilantro", "parsely",
+          "coleslaw mix cabbage", "green beans", "mushrooms", "jalapenos",
+          "olives"
+        ]
+      },
+      {
+        name: "Condiments",
+        items: [
+          "lobster base", "salsa", "tomato soup", "minced garlic", "mild sauce",
+          "hot sauce", "garlic parmesan", "mango habanero", "lemon pepper",
+          "sweet thai chilli", "bbq honey", "honey mustard", "ranch", "tartar",
+          "coleslaw dressing", "cocktail", "thousand island", "wasabi", "mayo",
+          "balsamic vinegrette", "chunky blue cheese", "tomato ketchup",
+          "mashed potato"
+        ]
+      },
+      {
+        name: "Breads",
+        items: [
+          "butter naan", "dinner rolls", "broiche bubs", "hoagie"
+        ]
+      },
+      {
+        name: "Frozen Items",
+        items: [
+          "shoestring fry", "sweet potato fry", "breaded okra", "breaded pickles", "onion rings",
+          "samosa", "spanakopita", "green beans breaded", "breaded mushrooms",
+          "mozzarella sticks", "cauliflower breaded", "falafal", "tator tots",
+          "vegetable spring roll", "kids mac & cheese", "mango cubes"
+        ]
+      },
+      {
+        name: "Desserts",
+        items: [
+          "red velvet cake", "choclate cake", "keylime pie", "carrot cake",
+          "newyork style cheese cake"
+        ]
+      },
+      {
+        name: "Dry Storage & Seasonings",
+        items: [
+          "old bay seasoning", "cinnamon sticks", "cloves", "cardamom", "bay leaves",
+          "breader", "marinara", "brown gravy mix", "capers", "blackened redfish magic",
+          "salt shaker", "pepper shaker", "salt iodised", "rice", "pasta"
+        ]
+      },
+      {
+        name: "Paper Goods & Packaging",
+        items: [
+          "basket liner", "grill picks", "dessert sauces", "dinner napkins",
+          "lunch napkins", "4 oz cups", "4 oz lids", "1 oz cups", "1 oz lids",
+          "T-shirt bags", "aluminium foil", "aluminium foil big roll", "food wrap",
+          "plastic cutlery", "to go foam boxes", "to go foam cups", "bar stirrers",
+          "bar straws", "soda straws", "beverage napkins", "sandwich bags",
+          "reclosable bags", "to go foam cup lids", "clear cups", "clear cups lids",
+          "fryer oil"
+        ]
+      },
+      {
+        name: "Beverages / Bibs",
+        items: [
+          "coke", "zero", "diet", "sprite", "lemonade", "root beer", "fanta",
+          "sweet & sour", "orange", "cranberry", "tonic", "ginger ale"
+        ]
+      }
+    ];
+
+    const form = document.getElementById("stockForm");
+    categories.forEach(category => {
+      const heading = document.createElement("h3");
+      heading.textContent = category.name;
+      form.appendChild(heading);
+
+      category.items.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+        row.innerHTML = `
+          <strong>${item.charAt(0).toUpperCase() + item.slice(1)}</strong><br>
+          <label>Cases:</label><input type="number" name="${item}_cases" min="0" />
+          <label>Each:</label><input type="number" name="${item}_each" min="0" />
+        `;
+        form.appendChild(row);
+      });
+    });
+
+    const submitBtn = document.createElement("button");
+    submitBtn.type = "submit";
+    submitBtn.textContent = "Generate Summary";
+    form.appendChild(submitBtn);
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      let result = "<h3>Stock Summary</h3>";
+
+      categories.forEach(category => {
+        let categoryContent = "";
+        category.items.forEach(item => {
+          const cases = formData.get(`${item}_cases`) || 0;
+          const each = formData.get(`${item}_each`) || 0;
+          if (cases > 0 || each > 0) {
+            categoryContent += `<li><strong>${item.toUpperCase()}</strong>: ${cases} cases, ${each} each</li>`;
+          }
+        });
+        if (categoryContent) {
+          result += `<h4>${category.name}</h4><ul>${categoryContent}</ul>`;
+        }
+      });
+
+      result += `<p><button onclick='window.print()'>Print or Save as PDF</button></p>`;
+      document.getElementById("summary").innerHTML = result;
+    });
+  </script>
+</body>
+</html>
